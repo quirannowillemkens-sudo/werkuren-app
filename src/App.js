@@ -107,68 +107,129 @@ export default function WerkurenApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-6 space-y-6">
-        <h1 className="text-3xl font-bold text-center text-gray-800">🕒 Werkuren App</h1>
-
-        <label className="text-sm font-medium">Naam technieker</label>
-        <input value={name} onChange={e => setName(e.target.value)} placeholder="Jouw naam" className={inputClass} />
-
-        <label className="text-sm font-medium">Datum</label>
-        <input type="date" value={date} onChange={e => setDate(e.target.value)} className={inputClass} />
-
-        <label className="text-sm font-medium">Project</label>
-        <select value={project} onChange={e => setProject(e.target.value)} className={inputClass}>
-          {projects.map(p => <option key={p}>{p}</option>)}
-        </select>
-
-        <label className="text-sm font-medium">Type uren</label>
-        <div className="flex gap-2">
-          <button onClick={() => setType("werk")} className={`flex-1 p-3 rounded-lg font-semibold transition-colors ${type === "werk" ? "bg-blue-600 text-white shadow-lg" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}>
-            🕒 Werkuren
-          </button>
-          <button onClick={() => setType("pauze")} className={`flex-1 p-3 rounded-lg font-semibold transition-colors ${type === "pauze" ? "bg-blue-600 text-white shadow-lg" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}>
-            ☕ Pauze
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-4 flex items-center justify-center">
+      <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-8 space-y-6 overflow-hidden">
+        {/* Header */}
+        <div className="text-center">
+          <div className="text-6xl mb-2">⏰</div>
+          <h1 className="text-2xl font-bold text-gray-800">Werkuren Tracker</h1>
         </div>
 
-        <label className="text-sm font-medium">Tijd</label>
-        <div className="flex gap-2">
-          <input type="time" value={start} onChange={e => setStart(e.target.value)} className={inputClass} />
-          <input type="time" value={end} onChange={e => setEnd(e.target.value)} className={inputClass} />
+        {/* User Info */}
+        <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+          <input
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="Naam technieker"
+            className="w-full p-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors"
+          />
+          <input
+            type="date"
+            value={date}
+            onChange={e => setDate(e.target.value)}
+            className="w-full p-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors"
+          />
         </div>
 
-        {timerStart && (
-          <div className="text-center text-2xl font-mono bg-blue-100 text-blue-800 p-3 rounded-lg shadow">
-            ⏱ {formatLive()}
+        {/* Project & Type */}
+        <div className="space-y-3">
+          <select
+            value={project}
+            onChange={e => setProject(e.target.value)}
+            className="w-full p-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors"
+          >
+            {projects.map(p => <option key={p}>{p}</option>)}
+          </select>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setType("werk")}
+              className={`flex-1 p-3 rounded-lg font-semibold transition-all ${type === "werk" ? "bg-purple-600 text-white scale-105 shadow-lg" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+            >
+              💼 Werk
+            </button>
+            <button
+              onClick={() => setType("pauze")}
+              className={`flex-1 p-3 rounded-lg font-semibold transition-all ${type === "pauze" ? "bg-purple-600 text-white scale-105 shadow-lg" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+            >
+              ☕ Pauze
+            </button>
           </div>
-        )}
+        </div>
 
-        <button onClick={() => addEntry(start, end)} className="bg-green-600 hover:bg-green-700 text-white p-4 w-full rounded-lg text-lg font-semibold shadow-lg transition-colors">
-          ➕ Handmatig toevoegen
-        </button>
+        {/* Time Inputs */}
+        <div className="bg-blue-50 rounded-xl p-4 space-y-3">
+          <div className="flex gap-2">
+            <input
+              type="time"
+              value={start}
+              onChange={e => setStart(e.target.value)}
+              className="flex-1 p-3 rounded-lg border-2 border-blue-200 focus:border-blue-500 focus:outline-none transition-colors"
+            />
+            <input
+              type="time"
+              value={end}
+              onChange={e => setEnd(e.target.value)}
+              className="flex-1 p-3 rounded-lg border-2 border-blue-200 focus:border-blue-500 focus:outline-none transition-colors"
+            />
+          </div>
+          {timerStart && (
+            <div className="text-center text-3xl font-mono bg-white text-blue-600 p-4 rounded-lg shadow-md">
+              {formatLive()}
+            </div>
+          )}
+        </div>
 
-        <button onClick={timerStart ? stopTimer : startTimer} className={`p-4 w-full rounded-lg text-lg font-semibold shadow-lg transition-colors ${timerStart ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"} text-white`}>
-          {timerStart ? "⏹ Stop timer" : "▶️ Start timer"}
-        </button>
+        {/* Action Buttons */}
+        <div className="space-y-3">
+          <button
+            onClick={() => addEntry(start, end)}
+            className="w-full bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg font-semibold shadow-lg transition-colors"
+          >
+            ➕ Voeg toe
+          </button>
+          <button
+            onClick={timerStart ? stopTimer : startTimer}
+            className={`w-full p-4 rounded-lg font-semibold shadow-lg transition-all ${timerStart ? "bg-red-500 hover:bg-red-600 animate-pulse" : "bg-blue-500 hover:bg-blue-600"} text-white`}
+          >
+            {timerStart ? "⏹ Stop" : "▶️ Start"} Timer
+          </button>
+        </div>
 
-        <div className="text-sm space-y-1">
+        {/* Entries List */}
+        <div className="max-h-40 overflow-y-auto space-y-2">
           {entries.map((e, i) => (
-            <div key={i} className="flex justify-between border-b py-2 bg-gray-50 rounded p-2">
-              <span className="font-medium">{e.date} – {e.project} ({e.type === "werk" ? "🕒 Werk" : "☕ Pauze"})</span>
-              <span className="text-blue-600 font-semibold">{(e.minutes / 60).toFixed(2)} u</span>
+            <div key={i} className="bg-gray-100 rounded-lg p-3 flex justify-between items-center">
+              <div>
+                <div className="font-semibold text-sm">{e.date}</div>
+                <div className="text-xs text-gray-600">{e.project} • {e.type === "werk" ? "💼 Werk" : "☕ Pauze"}</div>
+              </div>
+              <div className="text-lg font-bold text-purple-600">{(e.minutes / 60).toFixed(2)}h</div>
             </div>
           ))}
         </div>
 
-        <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-          <div className="font-semibold text-center text-lg text-gray-800">Werkuren: <span className="text-blue-600">{(workMinutes / 60).toFixed(2)} u</span></div>
-          <div className="text-center text-sm text-gray-600">Pauze: <span className="text-orange-600">{(breakMinutes / 60).toFixed(2)} u</span></div>
-          <div className="text-center text-sm text-red-600 font-medium">Overuren: {overtime.toFixed(2)} u</div>
+        {/* Summary */}
+        <div className="bg-purple-50 rounded-xl p-4 space-y-2">
+          <div className="flex justify-between">
+            <span className="font-semibold">💼 Werkuren:</span>
+            <span className="text-purple-600 font-bold">{(workMinutes / 60).toFixed(2)}h</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-semibold">☕ Pauze:</span>
+            <span className="text-orange-600 font-bold">{(breakMinutes / 60).toFixed(2)}h</span>
+          </div>
+          <div className="flex justify-between border-t pt-2">
+            <span className="font-semibold">⏰ Overuren:</span>
+            <span className="text-red-600 font-bold">{overtime.toFixed(2)}h</span>
+          </div>
         </div>
 
-        <button onClick={exportExcel} className="bg-purple-600 hover:bg-purple-700 text-white p-4 w-full rounded-lg text-lg font-semibold shadow-lg transition-colors">
-          📤 Exporteer naar Excel
+        {/* Export */}
+        <button
+          onClick={exportExcel}
+          className="w-full bg-indigo-500 hover:bg-indigo-600 text-white p-4 rounded-lg font-semibold shadow-lg transition-colors"
+        >
+          📊 Export Excel
         </button>
       </div>
     </div>
