@@ -97,7 +97,7 @@ export default function WerkurenApp() {
     XLSX.writeFile(wb, "werkuren.xlsx");
   };
 
-  const inputClass = "border p-3 w-full rounded text-lg";
+  const inputClass = "border border-gray-300 p-3 w-full rounded-lg text-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors";
 
   const formatLive = () => {
     const h = String(Math.floor(liveSeconds / 3600)).padStart(2, "0");
@@ -107,9 +107,9 @@ export default function WerkurenApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow p-4 space-y-4">
-        <h1 className="text-2xl font-bold text-center">🕒 Werkuren App</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-6 space-y-6">
+        <h1 className="text-3xl font-bold text-center text-gray-800">🕒 Werkuren App</h1>
 
         <label className="text-sm font-medium">Naam technieker</label>
         <input value={name} onChange={e => setName(e.target.value)} placeholder="Jouw naam" className={inputClass} />
@@ -124,11 +124,11 @@ export default function WerkurenApp() {
 
         <label className="text-sm font-medium">Type uren</label>
         <div className="flex gap-2">
-          <button onClick={() => setType("werk")} className={`flex-1 p-3 rounded ${type === "werk" ? "bg-blue-600 text-white" : "bg-gray-200"}`}>
-            Werkuren
+          <button onClick={() => setType("werk")} className={`flex-1 p-3 rounded-lg font-semibold transition-colors ${type === "werk" ? "bg-blue-600 text-white shadow-lg" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}>
+            🕒 Werkuren
           </button>
-          <button onClick={() => setType("pauze")} className={`flex-1 p-3 rounded ${type === "pauze" ? "bg-orange-500 text-white" : "bg-gray-200"}`}>
-            Pauze
+          <button onClick={() => setType("pauze")} className={`flex-1 p-3 rounded-lg font-semibold transition-colors ${type === "pauze" ? "bg-blue-600 text-white shadow-lg" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}>
+            ☕ Pauze
           </button>
         </div>
 
@@ -139,31 +139,35 @@ export default function WerkurenApp() {
         </div>
 
         {timerStart && (
-          <div className="text-center text-xl font-mono">⏱ {formatLive()}</div>
+          <div className="text-center text-2xl font-mono bg-blue-100 text-blue-800 p-3 rounded-lg shadow">
+            ⏱ {formatLive()}
+          </div>
         )}
 
-        <button onClick={() => addEntry(start, end)} className="bg-blue-600 text-white p-3 w-full rounded text-lg">
-          Handmatig toevoegen
+        <button onClick={() => addEntry(start, end)} className="bg-green-600 hover:bg-green-700 text-white p-4 w-full rounded-lg text-lg font-semibold shadow-lg transition-colors">
+          ➕ Handmatig toevoegen
         </button>
 
-        <button onClick={timerStart ? stopTimer : startTimer} className={`p-3 w-full rounded text-lg ${timerStart ? "bg-red-600" : "bg-green-600"} text-white`}>
+        <button onClick={timerStart ? stopTimer : startTimer} className={`p-4 w-full rounded-lg text-lg font-semibold shadow-lg transition-colors ${timerStart ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"} text-white`}>
           {timerStart ? "⏹ Stop timer" : "▶️ Start timer"}
         </button>
 
         <div className="text-sm space-y-1">
           {entries.map((e, i) => (
-            <div key={i} className="flex justify-between border-b py-1">
-              <span>{e.date} – {e.project}</span>
-              <span>{(e.minutes / 60).toFixed(2)} u</span>
+            <div key={i} className="flex justify-between border-b py-2 bg-gray-50 rounded p-2">
+              <span className="font-medium">{e.date} – {e.project} ({e.type === "werk" ? "🕒 Werk" : "☕ Pauze"})</span>
+              <span className="text-blue-600 font-semibold">{(e.minutes / 60).toFixed(2)} u</span>
             </div>
           ))}
         </div>
 
-        <div className="font-semibold text-center">Werkuren: {(workMinutes / 60).toFixed(2)} u</div>
-        <div className="text-center text-sm">Pauze: {(breakMinutes / 60).toFixed(2)} u</div>
-        <div className="text-center text-sm text-red-600">Overuren: {overtime.toFixed(2)} u</div>
+        <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+          <div className="font-semibold text-center text-lg text-gray-800">Werkuren: <span className="text-blue-600">{(workMinutes / 60).toFixed(2)} u</span></div>
+          <div className="text-center text-sm text-gray-600">Pauze: <span className="text-orange-600">{(breakMinutes / 60).toFixed(2)} u</span></div>
+          <div className="text-center text-sm text-red-600 font-medium">Overuren: {overtime.toFixed(2)} u</div>
+        </div>
 
-        <button onClick={exportExcel} className="bg-black text-white p-3 w-full rounded text-lg">
+        <button onClick={exportExcel} className="bg-purple-600 hover:bg-purple-700 text-white p-4 w-full rounded-lg text-lg font-semibold shadow-lg transition-colors">
           📤 Exporteer naar Excel
         </button>
       </div>
