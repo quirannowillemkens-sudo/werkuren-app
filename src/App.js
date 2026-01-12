@@ -7,45 +7,68 @@ function minutesBetween(start, end) {
   return eh * 60 + em - (sh * 60 + sm);
 }
 
+function nowTime() {
+  const d = new Date();
+  return d.toTimeString().slice(0, 5);
+}
+
+function todayDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export default function WerkurenApp() {
   const [entries, setEntries] = useState(() => {
     const saved = localStorage.getItem("werkuren");
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [projects, setProjects] = useState(() => {
-    const saved = localStorage.getItem("projecten");
-    return saved ? JSON.parse(saved) : ["Algemeen"];
-  });
+  const [name, setName] = useState(() => localStorage.getItem("technieker") || "");
 
-  const [date, setDate] = useState("");
-  const [project, setProject] = useState("Algemeen");
-  const [type, setType] = useState("werk"); // werk of pauze
-  const [start, setStart] = useState("");
+  const [projects] = useState(["Installatie", "Service", "Verkoop"]);
+
+  const [date, setDate] = useState(todayDate());
+  const [project, setProject] = useState("Installatie");
+  const [type, setType] = useState("werk");
+  const [start, setStart] = useState(nowTime());
   const [end, setEnd] = useState("");
+
   const [timerStart, setTimerStart] = useState(null);
+  const [liveSeconds, setLiveSeconds] = useState(0);
 
   useEffect(() => {
     localStorage.setItem("werkuren", JSON.stringify(entries));
-    localStorage.setItem("projecten", JSON.stringify(projects));
-  }, [entries, projects]);
+    localStorage.setItem("technieker", name);
+  }, [entries, name]);
+
+  useEffect(() => {
+    let interval;
+    if (timerStart) {
+      interval = setInterval(() => {
+        setLiveSeconds(Math.floor((Date.now() - timerStart) / 1000));
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timerStart]);
 
   const addEntry = (s, e) => {
     if (!date || !s || !e) return;
     const minutes = minutesBetween(s, e);
-    setEntries([...entries, { date, project, type, start: s, end: e, minutes }]);
+    setEntries([...entries, { name, date, project, type, start: s, end: e, minutes }]);
   };
 
   const startTimer = () => {
-    setTimerStart(new Date());
+    const now = Date.now();
+    setTimerStart(now);
+    setStart(nowTime());
+    setEnd("");
+    setLiveSeconds(0);
   };
 
   const stopTimer = () => {
     if (!timerStart) return;
-    const endTime = new Date();
-    const startStr = timerStart.toTimeString().slice(0, 5);
-    const endStr = endTime.toTimeString().slice(0, 5);
-    addEntry(startStr, endStr);
+    const endStr = nowTime();
+    addEntry(start, endStr);
+    setEnd(endStr);
     setTimerStart(null);
   };
 
@@ -55,6 +78,7 @@ export default function WerkurenApp() {
 
   const exportExcel = () => {
     const data = entries.map(e => ({
+      Naam: e.name,
       Datum: e.date,
       Project: e.project,
       Type: e.type === "werk" ? "Werkuren" : "Pauze",
@@ -63,9 +87,9 @@ export default function WerkurenApp() {
       Uren: (e.minutes / 60).toFixed(2)
     }));
 
-    data.push({ Datum: "", Project: "", Type: "", Start: "Werkuren", Einde: "", Uren: (workMinutes / 60).toFixed(2) });
-    data.push({ Datum: "", Project: "", Type: "", Start: "Pauze", Einde: "", Uren: (breakMinutes / 60).toFixed(2) });
-    data.push({ Datum: "", Project: "", Type: "", Start: "Overuren", Einde: "", Uren: overtime.toFixed(2) });
+    data.push({ Naam: "", Datum: "", Project: "", Type: "", Start: "Werkuren", Einde: "", Uren: (workMinutes / 60).toFixed(2) });
+    data.push({ Naam: "", Datum: "", Project: "", Type: "", Start: "Pauze", Einde: "", Uren: (breakMinutes / 60).toFixed(2) });
+    data.push({ Naam: "", Datum: "", Project: "", Type: "", Start: "Overuren", Einde: "", Uren: overtime.toFixed(2) });
 
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
@@ -75,10 +99,20 @@ export default function WerkurenApp() {
 
   const inputClass = "border p-3 w-full rounded text-lg";
 
+  const formatLive = () => {
+    const h = String(Math.floor(liveSeconds / 3600)).padStart(2, "0");
+    const m = String(Math.floor((liveSeconds % 3600) / 60)).padStart(2, "0");
+    const s = String(liveSeconds % 60).padStart(2, "0");
+    return `${h}:${m}:${s}`;
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="max-w-md mx-auto bg-white rounded-xl shadow p-4 space-y-4">
         <h1 className="text-2xl font-bold text-center">🕒 Werkuren App</h1>
+
+        <label className="text-sm font-medium">Naam technieker</label>
+        <input value={name} onChange={e => setName(e.target.value)} placeholder="Jouw naam" className={inputClass} />
 
         <label className="text-sm font-medium">Datum</label>
         <input type="date" value={date} onChange={e => setDate(e.target.value)} className={inputClass} />
@@ -104,6 +138,10 @@ export default function WerkurenApp() {
           <input type="time" value={end} onChange={e => setEnd(e.target.value)} className={inputClass} />
         </div>
 
+        {timerStart && (
+          <div className="text-center text-xl font-mono">⏱ {formatLive()}</div>
+        )}
+
         <button onClick={() => addEntry(start, end)} className="bg-blue-600 text-white p-3 w-full rounded text-lg">
           Handmatig toevoegen
         </button>
@@ -115,7 +153,7 @@ export default function WerkurenApp() {
         <div className="text-sm space-y-1">
           {entries.map((e, i) => (
             <div key={i} className="flex justify-between border-b py-1">
-              <span>{e.date} – {e.type === "werk" ? "Werk" : "Pauze"}</span>
+              <span>{e.date} – {e.project}</span>
               <span>{(e.minutes / 60).toFixed(2)} u</span>
             </div>
           ))}
